@@ -16,7 +16,7 @@ pipeline  {
             steps {
                 echo 'Creating docker image ...'
                 dir('.'){
-                    sh "docker build --no-cache -t yurashupik/website  . "
+                    sh "docker build --no-cache -t roman2447/website  . "
                 }
             }
         }
@@ -34,7 +34,15 @@ pipeline  {
             steps {
                 echo " ============== pushing image =================="
                 sh '''
-                docker push yurashupik/website:latest
+                docker push roman2447/website:latest
+                '''
+            }
+        }
+            stage("docker start") {
+            steps {
+                echo " ============== Test start server =================="
+                sh '''
+                docker run -d --restart=always --name website -p 80:80 roman2447/website
                 '''
             }
         }
@@ -58,7 +66,7 @@ pipeline  {
             steps {
                 echo " ============== start server =================="
                 sh '''
-                docker run -d --restart=always --name website -p 80:80 yurashupik/website
+                docker run -d --restart=always --name website -p 80:80 roman2447/website
                 '''
             }
         }

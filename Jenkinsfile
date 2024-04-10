@@ -1,25 +1,28 @@
 #!groovy
-//  groovy Jenkinsfile
+// Groovy Jenkinsfile
+
 properties([disableConcurrentBuilds()])
 
-pipeline  {
-        agent { 
-           label ''
-        }
+pipeline {
+    agent {
+        label ''
+    }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
         timestamps()
     }
+
     stages {
         stage("Create docker image") {
             steps {
                 echo 'Creating docker image ...'
-                dir('.'){
-                    sh "docker build --no-cache -t roman2447/website  . "
+                dir('.') {
+                    sh "docker build --no-cache -t roman2447/website:1.1 ."
                 }
             }
         }
+        
         stage("docker login") {
             steps {
                 echo " ============== docker login =================="
@@ -30,43 +33,31 @@ pipeline  {
                 }
             }
         }
+
         stage("docker push") {
             steps {
                 echo " ============== pushing image =================="
                 sh '''
-                docker push roman2447/website:latest
+                docker push roman2447/website:1.1
                 '''
             }
         }
-            stage("docker start") {
+
+        stage("docker stop and remove previous container") {
             steps {
-                echo " ============== Test start server =================="
-                sh '''
-                docker run -d --restart=always --name website -p 80:80 roman2447/website
-                '''
-            }
-        }
-        stage("docker stop") {
-            steps {
-                echo " ============== stopping all images =================="
+                echo " ============== stopping and removing previous container =================="
                 sh '''
                 docker stop website
-                '''
-            }
-        } 
-        stage("docker remove") {
-            steps {
-                echo " ============== removing all docker containers =================="
-                sh '''
-                docker rm  website 
+                docker rm website
                 '''
             }
         }
+
         stage("docker run") {
             steps {
                 echo " ============== start server =================="
                 sh '''
-                docker run -d --restart=always --name website -p 80:80 roman2447/website
+                docker run -d --restart=always --name website -p 80:80 roman2447/website:1.1
                 '''
             }
         }

@@ -1,4 +1,3 @@
-#!groovy
 // Groovy Jenkinsfile
 
 properties([disableConcurrentBuilds()])
@@ -47,8 +46,8 @@ pipeline {
             steps {
                 echo " ============== stopping and removing previous container =================="
                 sh '''
-                docker stop website
-                docker rm website
+                docker stop my_container || true
+                docker rm my_container || true
                 '''
             }
         }
@@ -57,7 +56,7 @@ pipeline {
             steps {
                 echo " ============== start server =================="
                 sh '''
-                docker run -d --restart=always --name website -p 80:80 roman2447/website:1.1
+                docker run -d -p 80:80 --name my_container roman2447/website:1.1
                 '''
             }
         }
